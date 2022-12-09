@@ -1,0 +1,58 @@
+import pandas as pd
+import numpy as np
+
+%matplotlib inline
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+from sklearn.neighbors import KNeighborsClassifier
+
+from sklearn.metrics import accuracy_score
+
+csv_file = pd.read_csv("/content/finaldatatrain.csv")
+#make copy to avoid changing original data
+new_csv_file = csv_file.copy()
+new_csv_file.head(10)
+new_csv_file.apply(lambda x: sum(x.isnull()),axis=0)
+mymap = {'3+':4, 'Male':0, 'Female':1, 'Yes':1, 'No':0, 'Graduate':1, 'Not Graduate':0, 'Rural':0, 'Urban':2, 'Semiurban':1, 'Y':1, 'N':0}
+new_csv_file = new_csv_file.applymap(lambda s: mymap.get(s) if s in mymap else s)
+
+
+     
+
+clean_data = new_csv_file.fillna(new_csv_file.mean())
+
+
+     
+
+clean_data.apply(lambda x: sum(x.isnull()),axis=0)
+clean_data = clean_data.dropna()
+
+
+     
+
+clean_data.apply(lambda x: sum(x.isnull()),axis=0)
+x = clean_data.drop(['Loan_Status','Loan_ID'], axis = 1).values
+y = clean_data['Loan_Status'].values
+
+
+     
+
+X_train, X_test, Y_train, Y_test = train_test_split(x, y, test_size = 0.1, random_state=42, stratify = y)
+
+
+     
+
+knn = KNeighborsClassifier(n_neighbors = 3)
+knn.fit(X_train, Y_train)
+prediction = knn.predict(X_test)
+print("Prediction for test set: {}".format(prediction))
+print('Score for the training set', knn.score(X_train, Y_train))
+print('score for the test set',knn.score(X_test, Y_test))
+
+print('Accuracy of the model', accuracy_score(Y_test, prediction))
+# Loan Result for a person earning 20000 and loan amount of 200:
+new_data = np.array([[0.0, 0.0, 0.0, 1.0, 0.0, 20000, 0.0, 200, 120, 0.0, 2]]) 
+knn.predict(new_data)
+# Loan Result for a person earning 5000 and loan amount of 50000:
+new_data = np.array([[0.0, 0.0, 0.0, 1.0, 0.0, 5000, 0.0, 50000, 240, 0.0, 2]]) 
+knn.predict(new_data)
